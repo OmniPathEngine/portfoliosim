@@ -18,5 +18,3 @@ This repository is governed by robust, automated PowerShell build loops tailored
 1. Run watch.ps1. It relentlessly monitors the modular /src directory (math.js, ui.js, data.js, index.html).
 2. Upon saving any physical source file, the watcher inherently triggers build.ps1 automatically.
 3. The build logic aggregates all logical modules, generating an organized, accessible /dist/dev build and a strictly protected /dist/prod payload autonomously.
-
-*Note: This README.md file itself is strictly regenerated highly dynamically directly via the continuous watcher compilation loop to persistently ensure synchronized architectural alignment.*
