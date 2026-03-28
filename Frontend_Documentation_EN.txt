@@ -1,93 +1,99 @@
 UI/UX DOCUMENTATION (ENGLISH)
-ETF PORTFOLIO SIMULATOR
+ETF PORTFOLIO SIMULATOR (VERSION 5.0)
 
-This document outlines the structural User Interface (UI) framework as well as the interactive User Experience (UX) patterns governing the application.
+This document describes the structural User Interface (UI) architecture as well as the interactive User Experience (UX) patterns of the application.
 
 
 CHAPTER 1: USER INTERFACE (UI) & EDUCATIONAL ARCHITECTURE
 
 - INTRODUCTION TO THE WORLD OF ETFS
-  The onboarding segment ('What are ETFs exactly?') utilizes easily comprehensible, educational language. 
-  Users learn the fundamental rules of the Buy & Hold approach (10 to 15 years). The visual design 
-  in a separate 'bg-slate-800' container logically isolates this introductory section from the actual 
-  calculator to prevent overwhelming beginners instantly with raw numbers.
+  The onboarding element ('What exactly are ETFs?') utilizes easy-to-understand, educational language. 
+  Users learn the fundamental rules of the Buy & Hold approach (10 to 15 years). The visual design, 
+  encapsulated in a separate 'bg-slate-800' container, detaches this learning segment from the rest of the 
+  metrics, ensuring beginners are not immediately overwhelmed by numbers.
 
-- EXPLANATION OF TERMINOLOGY (ETF SECRET LANGUAGE)
-  A responsive CSS grid systematically organizes complex technical terms such as World Index, Emerging Markets, 
-  ACWI, IMI, TER, and Acc. Subtle color accents ('text-blue-400', 'text-emerald-400', etc.) actively 
-  support visual learning and group terms meaningfully together from a cognitive perspective.
+- EXPLANATION OF TERMINOLOGY (ETF JARGON)
+  A responsive CSS grid systematically arranges complex terminology such as World Index, Emerging Markets, 
+  ACWI, IMI, TER, and Acc. Subtle color accents ('text-blue-400', 'text-emerald-400', etc.) 
+  support visual learning and group the concepts cognitively into logical boundaries.
 
 - PORTFOLIO CONCEPTS
-  The display of the four core strategies (The Pro Mix, The Classic, All-in-One, Relaxed Entry) is dynamically 
+  The display of the four core strategies (Pro-Mix, Classic, All-in-One, Relaxed Entry) is dynamically 
   constructed via the JS function `renderConcepts()`. Each concept is rendered as an isolated card component. 
-  The header is dominated by static metrics such as Ø Return, Volatility, Included Companies, and Ø TER, 
-  which are automatically extracted and aggregated from the JSON objects ('blendedCagr', 'blendedVol').
+  The header is dominated by static metrics such as Ø Return, Volatility, contained companies, 
+  and Ø TER, which are automatically extracted and aggregated from JSON objects ('blendedCagr', 'blendedVol').
 
-- RECOMMENDATIONS & RISK WARNINGS
-  Educational pacing is achieved through color-coded typography. Recommendations pulse in green/blue 
-  ('text-emerald-400', 'text-blue-400') indicating the strategy's target audience. Hidden systemic 
-  hazards or cluster risks (e.g., USA tech dominance) are marked in signal red ('text-rose-400') 
-  and appended with an explicit hazard icon.
+- ACTIONABLE RECOMMENDATIONS & RISK WARNINGS
+  Educational guidance is crafted through color-coded typography. Recommendations brightly glow in green/blue 
+  ('text-emerald-400', 'text-blue-400'), indicating the target demographic for the strategy. 
+  Hidden systemic risks or cluster risks (e.g., US-Tech dominance) are marked in signal red ('text-rose-400') 
+  and supplemented with a warning icon.
 
 - GRAPHICAL REPRESENTATION (CHART.JS)
-  Via the `initPieChart()` function, seamless Doughnut charts are pumped into the UI to precisely depict 
-  regional, sectoral, and currency distributions (allocation). Long-term developments are additionally 
-  rendered as Line charts. They visualize the Invested Capital (Gray), Best-Case, Worst-Case, and the 
-  heavily emphasized Median of the respective portfolio. All graphs are fully responsive to window dimensions.
+  Via the `initPieChart()` function, seamless doughnut charts are pumped into the UI to map the 
+  Regional, Sectoral, and Currency distributions (allocation). Long-term progression 
+  is additionally rendered as a line chart. It illustrates the invested capital (gray), 
+  along with the best-case, worst-case, and the heavily emphasized median trajectory of the respective portfolio. 
+  All graphs are fully bound responsively to the browser window geometry. To strictly prevent visual clipping 
+  across narrow pie slices, all interior metric labels and hover tooltips are natively sanitized utilizing `Math.round()`.
 
 - MOUSEOVER TOOLTIPS
-  Instead of utilizing rigid title attributes, the frontend invokes an adaptive, CSS-driven tooltip system 
-  relying on Tailwind classes 'group-hover' (for desktop mice) and specifically 'touch-hover' 
-  (for mobile devices). This logic injects explanations for abstract metrics by materializing floating 
-  containers ('absolute', 'z-50') smoothly out of nowhere ('opacity-100').
+  Instead of rigid title attributes, the frontend utilizes an adaptive, CSS-driven tooltip system based 
+  on Tailwind classes 'group-hover' (for desktop mice) and 'touch-hover' 
+  (for mobile devices). This logic injects explanations for abstract metrics by fluidly fading in 
+  floating containers ('absolute', 'z-50') out of thin air ('opacity-100').
 
 - UNDER THE HOOD MODAL
-  Profound mathematical revelations are tucked within a modal overlay ('#math-modal'). Consequently, 
-  the main page retains extreme cleanliness (Progressive Disclosure). The modal encompasses distinct 
-  content blocks transparently dismantling stochastic processes and hidden code backgrounds (QuickSelect, SFC32).
+  Deep mathematical revelations are concealed within a modal overlay ('#math-modal'). 
+  This keeps the main page extremely clean (Progressive Disclosure). The modal contains 14 separate 
+  blocks (rendered with KaTeX), which detail the stochastic processes and code architecture 
+  of the OmniPath 5.0 Engine (Hawkes, Heston, QuickSelect, SFC32).
 
 
 CHAPTER 2: USER EXPERIENCE (UX) & INTERACTION FLOW
 
 - LOCALIZATION (GERMAN / ENGLISH)
-  The application is fluently bilingual. The `setLang(lang)` function handles instantaneous contextual 
-  switching. Assorted CSS classes like '.lang-de' and '.lang-en' are toggled entirely via JS ('classList.toggle'). 
-  A prominent detail: When switching to English (USD), existing Euro slider inputs spanning initial capital 
-  and savings rates are converted on the fly against live exchange properties seamlessly.
+  The application fluently speaks two languages. The function `setLang(lang)` handles the 
+  immediate language toggle. CSS classes such as '.lang-de' and '.lang-en' are toggled 
+  via JS ('classList.toggle') seamlessly. An important detail: Upon switching to English (USD), 
+  the existing Euro inputs for initial capital and savings rate are live-converted via current exchange rates.
 
-- DYNAMIC EXCHANGE RATES
-  To ensure precise and consistent visualizations globally, the asynchronous function `fetchExchangeRate()` 
-  tethers sequentially with the external 'open.er-api.com'. The exact currency conversion rate translating EUR 
-  to USD is preemptively fetched in the background, permitting the UI to broadcast accurate portfolio values instantly.
+- DYNAMISCHE WECHSELKURSE
+  To ensure accurate and consistent visual metric conversions, the asynchronous function 
+  `fetchExchangeRate()` communicates directly with the external API 'open.er-api.com'. The currency conversion 
+  rate from EUR to USD is silently fetched in the background up front, allowing the UI to localize 
+  accurate global portfolio values continuously.
 
-- INPUT HANDLING (STICKY CONTROL PANEL)
-  The centralized metric dashboard (Initial Capital, Savings Rate, Increase) is governed by an automated 
-  IntersectionObserver (Anchor: '#sticky-sentinel'). As the user scrolls downwards, the panel safely locks 
-  onto the upper viewport boundary ('is-sticky'). 
-  User keystrokes are actively filtered by the function `formatNumberInput` following strict Regex rules, 
-  ensuring exclusively clean financial string ingestion. Superimposed is a smart timeout-debounce logic 
-  (`debouncedUpdate()`), which rigidly buffers the heavy computational kernel for 1000ms strictly 
-  preventing CPU stutter during heavy keystroke events.
+- INPUT-HANDLING (STICKY CONTROL PANEL)
+  The central input field (initial capital, savings rate, escalation) is monitored by an IntersectionObserver 
+  (Anchor: '#sticky-sentinel'). As soon as the user scrolls downwards, the panel safely locks 
+  into place at the top bounds of the screen ('is-sticky'). 
+  User keystrokes are filtered by the function `formatNumberInput` following strict Regex rules, 
+  ensuring only pure financial strings are accepted. Superimposed is a smart timeout-debounce logic 
+  (`debouncedUpdate()`), buffering the heavyweight calculation kernel over a 1000ms delay to 
+  actively prevent CPU locking during rapid multi-keystroke inputs.
 
 - INFLATION TOGGLE
-  A physical toggle switch ('#inflation') enables an instant visual switch between nominal values and real 
-  economic purchasing power (Fisher Present-Value Discounting). Triggering the checkbox directly fires a 
-  rapid 'change' event commanding a secondary Evaluation ('debouncedUpdate()'), explicitly granting profound 
-  economic depth across all drawdowns and terminal milestones.
+  A physical toggle switch ('#inflation') enables immediate switching between nominal values 
+  and real purchasing power (Fisher Present-Value discounting). Native to its 'change' event, 
+  the checkbox enforces an immediate re-evaluation ('debouncedUpdate()'), heavily injecting economic 
+  depth across all drawdowns and terminal asset trajectories.
 
-- EXPANDABLE DETAILS (ACCORDION)
-  Detailed allocation architectures enveloping Doughnut graphs are collapsed by default simply preventing 
-  crowded UI hierarchies. The JS trigger `toggleDetails(id)` encapsulates the DOM element, softly rotating 
-  the Chevron SVG icon ('rotate-180') via native CSS transitions whilst additionally propagating a manual 
-  window 'resize' event solving nagging Canvas squishing natively inside Chart.js grids.
+- EXPANDABLE ADDITIONAL INFO (ACCORDION)
+  The detailed allocation structure (regional, sectoral, and currency doughnut diagrams) is collapsed by default 
+  to prevent cluttered UIs. Meanwhile, the distribution bar charts (Developed/Emerging Markets, Company Sizes) 
+  have been structurally relocated to permanently render above the ETF weighting box for zero-interaction visibility.
+  The JS trigger `toggleDetails(id)` wraps the accordion element, softly rotating 
+  the chevron SVG icon ('rotate-180') via CSS transitions, additionally dispatching a manual 
+  'resize' event to the global Window node to bypass annoying canvas compression bugs native to Chart.js.
 
 - INSTITUTIONAL REFERENCES
-  A subtly restrained, Dark-Mode compliant footer naturally infuses the logos and URLs mapping four massive 
-  data sources (MSCI, BlackRock, J.P. Morgan, Vanguard). Utilizing CSS 'hover:-translate-y-1', icons responsively 
-  elevate against standard cursor activity physically anchoring uncompromising professional integrity into the UX fabric.
+  A subtle, dark-mode compliant footer embeds the logos and URLs of the four major financial data sources 
+  (MSCI, BlackRock, J.P. Morgan, Vanguard). A CSS 'hover:-translate-y-1' reactively lifts the icons 
+  against mouse boundaries, reinforcing professional institutional confidence in the simulated underlying metrics.
 
 - FACTSHEET DEEP-LINKS
-  Direct links targeting individual Factsheets hosted on 'justetf.com' exist organically per isolated ETF within 
-  iterated concept partitions. These URLs are assembled highly dynamically throughout execution cycles strictly 
-  based on the explicit ISIN metric and the dynamically active language context ('justEtfLang'), wholly replacing 
-  manual tedious searches conventionally enforced upon retail users.
+  Inside the rendered concept grids, each exact ETF features a direct hyperlink mapped to its respective 
+  factsheet on 'justetf.com'. These anchor tags are constructed highly dynamically during JS loop iterations 
+  utilizing their underlying ISIN identifiers combined with the active localization string ('justEtfLang'), 
+  eliminating requirements for manual external due diligence research.

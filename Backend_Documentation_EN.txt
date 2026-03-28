@@ -1,116 +1,113 @@
-OMNIPATH ENGINE - TECHNICAL DOCUMENTATION AND ARCHITECTURE REFERENCE
+OMNIPATH ENGINE - TECHNICAL DOCUMENTATION AND ARCHITECTURE REFERENCE (VERSION 5.0)
 
-This document provides deep technical insight into the OmniPath Engine, 
+This document provides deep technical insight into the OmniPath Engine 5.0, 
 the quantitative core of the ETF Portfolio Simulator. It addresses the 
 architectural conventions, stochastic models, and performance optimizations 
-that enable complex financial mathematics to execute in real-time within the browser.
+that enable complex financial mathematics to be executed in real-time within the browser.
 
 
 CHAPTER 1: QUANTITATIVE MODELS & FINANCIAL ENGINEERING
 
 The OmniPath Engine abstracts fundamental market dynamics into a stochastic 
-differential equation (SDE) system. In doing so, it calculates not only normal 
-distributions but also asymmetric tail risks.
+differential equation (SDE) system. It calculates not only normal distributions 
+but also empirically substantiated asymmetric crisis scenarios.
 
-- MONTE CARLO SIMULATION
-  By default, the engine generates 100,000 stochastic paths (N_PATHS) per ETF. 
-  Each path simulates an independent potential future over an investment horizon 
-  of 30 years in monthly intervals (12*30=360 steps). For a portfolio 
-  consisting of 3 ETFs, this results in 108,000,000 (3*12*360*100,000) calculated nodes per run. 
-  This guarantees high statistical significance for the confidence intervals (P10 and P90).
+- HAWKES-PROCESS (CONTAGION CLUSTERING)
+  Instead of rigid, homogeneous Poisson distributions, the engine implements a 
+  time-discrete, self-exciting Hawkes process. Extreme market crashes fluctuate in logical sequential shocks. 
+  This model simulates authentic empirical contagion clusters and correctly dynamizes 
+  extreme asymmetric -70% drawdowns mathematically via Exact Exponential CDF boundaries, allowing systemic crises 
+  to realistically persist over prolonged durations.
 
-- ASYMMETRIC POISSON JUMP-DIFFUSIONS
-  To accurately reflect market shocks ("Black Swans"), the engine implements the 
-  Merton Jump-Diffusion process. Alongside continuous Brownian motion, which 
-  maps daily market volatility, there is a discrete Poisson distribution (lambda = 0.1). 
-  This statistically forces an extreme asymmetric market crash (-20% baseline drop) 
-  every 10 years. The severity of the drop is dynamically coupled to the 
-  volatility of the respective ETF (asset_jump_mu), ensuring that low-risk bond ETFs 
-  experience softer drawdowns in the simulation than volatile small caps.
+- 5-FACTOR REGIONAL STRUCTURE (DOM-BINDING)
+  The internal JSON payload governing the portfolios (`data.js`) rigidly enforces a 5-dimensional 
+  geographical isolation lattice (`North America`, `Europe`, `Emerging Markets`, `Japan`, `Pacific`). 
+  This explicit array coupling prevents `undefined` geometry mapping errors during Chart.js rendering 
+  and successfully supersedes heavily flawed legacy 3-factor models.
 
-- EXACT ISOMETRIC DRIFT CALIBRATIONS
-  Conventional simulations incorrectly offset nominal returns (CAGR) directly with 
-  stochastic volatility, leading to massive long-term deviations of the median path 
-  ("Double Penalty"). The OmniPath Engine first converts the desired net return 
-  (CAGR minus TER) into the logarithmic, continuous differential space: 
-  'continuous_drift = Math.log(1 + cagr_net)'. Thus, the geometric anchor of the 
-  simulation is calibrated mathematically exact.
-
-- DEEP-LOOP REAL PV FISHER MECHANICS
-  When the inflation option (useInflation) is active, the engine does not merely 
-  discount the final result. Instead, every single cash flow is discounted to its 
-  Present Value (PV) at the model level according to the Fisher equation. Every 
-  defined savings plan payment stream is geometrically devalued by 2.5% per year. 
-  Consequently, the system displays the "true" purchasing power in today's money 
-  at all times, completely eliminating the illusion of money.
-
-- HIGH-ENTROPY PRNG (SFC32)
-  Standard 'Math.random()' fails at 100 million iterations due to cyclical 
-  overlaps and poor entropy. Instead, the engine natively implements an SFC32 
-  (Small Fast Counter) PRNG algorithm with a 128-bit internal state. This 
-  guarantees deterministic, absolutely reproducible, and high-quality random 
-  numbers for the Marsaglia Polar transformation without gaps in the stochastic space.
+- HESTON STOCHASTIC VOLATILITY
+  Variances fluctuate fully stochastically based on a calibrated Cox-Ingersoll-Ross (CIR) process. 
+  To natively map empirical market drawdowns, the diffusion integrates a strict bivariate leverage correlation 
+  parameter (rho = -0.7) mathematically coupling explosive upside variance permutations exclusively to severe portfolio crashes.
+  To prevent systemic critical negative variances native to the Euler-Maruyama 
+  approximation procedure (which would lead to fatal NaN collapses), the OmniPath Engine 
+  rigorously applies the computationally stable Lord/Koekkoek "Full Truncation" scheme. 
+  Furthermore, a strict 80% jump-variance cap securely shields the geometric Feller condition 
+  from underlying diffusion collapses.
 
 - LOGNORMAL MARTINGALE COMPENSATOR
-  Since injecting Poisson jumps (drawdowns) would artificially drag the median of 
-  the simulation downward, the engine utilizes an exact linear martingale compensator 
-  (asset_jump_compensator = lambda * asset_jump_mu). This isolates and corrects the 
-  continuous drift upward to structurally defend the expected mathematical value of 
-  the P50 quantile, while fully preserving the fat lower tails (P10).
+  Because asymmetric crash spikes aggressively drive distribution logics south, the system integrates a 
+  stationary drift compensator. This ensures the median-targeted P50 expected-value level 
+  of the simulation is offset geometrically, balancing structural distortions and safely preserving 
+  the geometric portfolio paths against unjust backward skewing.
 
-- FISHER-DISCOUNTED TWR DRAWDOWNS
-  Maximum Drawdown (MDD) is not calculated using the nominal portfolio sum, as 
-  monthly deposits would visually obscure losses. Instead, a true Time-Weighted-Return 
-  (TWR) Net-Asset-Value (NAV) index is generated. If inflation is active, this path 
-  is additionally scrubbed monthly by the Real-Discount factor. The engine tracks real 
-  purchasing power drawdowns (using a High-Water-Mark algorithm) to audit genuine 
-  systematic loss risks.
+- LINEAR VOLATILITY SCALING (MERTON JUMPS)
+  To prevent extreme dimensional anomalies, systemic shocks are formatted precisely 
+  utilizing strict linear volatility scaling mapping. This mathematically maintains the dispersion 
+  and correlation laws intact across the different ETF risk classes, guaranteeing low-risk 
+  bond allocations scale logically against fat-tail jump events, eliminating runaway severity ratios.
 
-- MULTIVARIATE CORRELATION REGIMES
-  To visualize cluster risks across global portfolios, the engine employs Cholesky 
-  decomposition. It transforms the defined covariance matrix into a lower triangular 
-  matrix (L-Matrix). Upon triggering a Poisson shock, the engine dynamically switches 
-  from the baseline matrix to a "Crisis Matrix", where all correlations are massively 
-  pushed toward 1.0 (synchronicity). This simulates panic sell-offs, where diversification 
-  effects temporarily break apart in reality.
+- DYNAMIC CONDITIONAL CORRELATION
+  During turbulent market regimes, asset correlations do not jump blindly toward a binary "1.0", 
+  but interpolate continuously. The dynamic sliding intensity parameter integrates natively 
+  with the Cholesky-decomposition matrix, flawlessly bridging physical diversification 
+  divergences generating highly realistic structural stress deviations. This natively includes 
+  Spherical Normalizations to rigorously maintain exact unit-variance boundaries.
+
+- HULL-WHITE INTEREST RATE DYNAMICS
+  Inflation and baseline real rates are heavily discretized inherently utilizing a continuous 
+  SDE mean-reverting infrastructure. Replacing flawed limit-bound Euler-Maruyama drifts, 
+  the engine natively executes the Exact Analytical Ornstein-Uhlenbeck Transition arrays, 
+  locking exact stationary bounds irrespective of macroscopic non-continuous step limits (dt = 1/12).
+
+- FISHER-DISCOUNTED REAL-PV
+  Cumulative portfolio capitalizations and benchmark cashflow distributions natively discard 
+  deterministic bifurcated standard deflators. The engine dynamically maps homomorphic path-dependent 
+  equivalents tracking exact probabilistic expectations strictly via the integrated Hull-White 
+  stochastic bounds, stripping multi-decade valuation decay geometrically cleanly.
+- MID-PERIOD SDE CONVENTIONS
+  Monthly deposited saving allocations structurally sidestep elementary arithmetic accumulation drags 
+  by natively coupling cashflows directly to the active stochastic asset distribution natively. 
+  This avoids 'Shannon's Demon' hedging anomalies, pushing investments onto uninterrupted exponential curves.
+
+- LOGARITHMIC TER EXTRACTORS
+  Fund management deduction loads naturally depart native geometric arithmetic routines 
+  executing mathematical proportionality cleanly inside the exponential SDE matrices as a direct 
+  Log-addition ($\ln(1+CAGR) + \ln(1-TER)$). This geometric scalar executes purely drift-neutral.
+
+- O(1) MAXIMUM DRAWDOWN TRACKER
+  Ongoing MDD peak-to-trough sequence constants are recursively derived strictly for 
+  tens of millions of temporal execution points instantly within an absolute constant bound O(1). 
+  Isolating local high-water marks ensures massive history vector matrices avoid consuming memory, 
+  saving hundreds of megabytes of browser RAM overhead allocation effortlessly.
 
 
 CHAPTER 2: ARCHITECTURE & PERFORMANCE OPTIMIZATIONS
 
-The OmniPath Engine was designed as a zero-dependency architecture. It achieves its 
-massive computational speeds in the browser through rigorous memory and thread isolation.
+The OmniPath Engine serves as a rigid zero-dependency architecture. It accomplishes 
+its massive parallel generation speeds in client browsers by executing persistent array pooling techniques 
+and absolute hardware-level threading isolations perfectly.
 
-- ASYNCHRONOUS DISTRIBUTED MULTITHREADING
-  Instead of freezing the browser's main thread (and thus the UI), the entire 
-  quantitative kernel is offloaded into isolated Web Worker instances via a Blob stream. 
-  Multiple portfolios (Concepts) are executed independently and absolutely parallel 
-  across separate CPU cores.
+- ASYNCHRONOUS MULTITHREADING
+  Isolated Web Worker instances execute highly intensive matrix arrays seamlessly computing 
+  100,000 algorithmic trajectories far away from main thread boundaries. This rigidly decouples V8 tracking 
+  ensuring flawless 60 FPS zero-latency UI responsiveness globally. Hard spinlocks and preemptive 
+  'terminate()' logic unconditionally suppresses parallel underlying zombie-worker state collapses.
+
+- ZERO-COPY IPC (MEMORY TRANSFER) & FLOAT64 POOLING
+  Direct ownership transfers of structural ArrayBuffers exclusively execute utilizing Zero-Copy 
+  Transferable Objects. This absolutely omits lagging structured-clone cycles eliminating fully native 
+  Garbage-Collection (GC) lag spikes through sustainable Capacity-based High-Water-Mark floating limits, 
+  effectively bypassing shrinking memory clearance sweeps.
+
+- 128-BIT SFC32 PRNG (HIGH-ENTROPY)
+  Constructed securely utilizing ChaCha baseline topologies, this continuous pseudo-random number architecture 
+  totally overrides rudimentary browser 'Math.random()' generation. By strictly assigning perfectly decoupled 
+  128-bit inner seeds per worker node, tail-risk sequences guarantee maximally uncorrelated sequences accurately.
 
 - O(N) RANDOMIZED QUICKSELECT
-  Extracting the P10, P50, and P90 quantiles from 100,000 paths would fundamentally 
-  require sorting the arrays. This would cause a time-consuming complexity of O(N log N). 
-  The engine uses Hoare's QuickSelect algorithm instead. Through stochastic pivot selections, 
-  the problem is solved in-place in linear time O(N). This is hundreds of times faster 
-  than conventional sorting algorithms.
-
-- ZERO-COPY IPC (MEMORY TRANSFER)
-  To optimize moving massive amounts of data between the Web Worker and the main thread, 
-  the engine avoids the extremely CPU-intensive "Structured Clone" algorithm. 
-  Instead, the Float64Arrays are injected as "Transferable Objects" [buffer]. 
-  The ownership of the memory is handed over to the UI thread in nanoseconds, 
-  without a single byte having to be copied in RAM.
-
-- MEMORY EFFICIENCY (FLOAT64ARRAYS)
-  The engine systematically foregoes conventional, dynamic JavaScript arrays ([]). 
-  Instead, strictly typed contiguous memory blocks (Float64Array) are pre-allocated. 
-  This allows the browser's V8 JIT engine to know the exact required heap allocation 
-  in advance. This prevents re-allocations and avoids devastating Garbage Collection (GC) 
-  pauses during the massive path-tracking sequences.
-
-- ISOLATED PRNG STATE SECURITY
-  To prevent race conditions in the random number generator during the parallel 
-  execution of the QuickSelect arrays, the engine isolates its entropy sources. 
-  The primary SFC32 generator strictly handles the financial engineering, while an 
-  isolated LCG generator exclusively manages the array pivot selections ("State Bleed" 
-  Prevention). This preserves the "Common Random Numbers" (CRN) mathematical structure 
-  perfectly, ensuring A/B comparisons of the portfolios remain deterministically stable.
+  Resolving heavy asymmetrical tail percentiles (P10, P50, P90) natively isolates critical mathematical bounding limits 
+  instantly pivoting linearly inside an absolute bounded O(N) constant limit bypassing lagging internal tree sorting logic. 
+  "State-Bleed" across random selection trees is securely nullified via a deterministically disjoint 
+  `qs_seed` allocation statically offset at Worker Initialization. This definitively restores 
+  perfect deterministic Common Random Numbers (CRN) alignment without any O(N^2) degradation traps.
